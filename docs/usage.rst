@@ -26,6 +26,7 @@ One good way to automatically do this notice type creation is in a
 Here is an example::
 
     from django.conf import settings
+    from django.db.models import signals
     from django.utils.translation import ugettext_noop as _
     
     if "notification" in settings.INSTALLED_APPS:
