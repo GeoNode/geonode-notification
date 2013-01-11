@@ -23,7 +23,7 @@ def load_backends():
         else:
             raise exceptions.ImproperlyConfigured, "NOTIFICATION_BACKENDS does not contain enough data."
         dot = backend_path.rindex(".")
-        backend_mod, backend_class = backend_path[:dot], backend_path[dot+1:]
+        backend_mod, backend_class = backend_path[:dot], backend_path[dot + 1:]
         try:
             # import the module and get the module from sys.modules
             __import__(backend_mod)
