@@ -10,7 +10,6 @@ from django.utils.translation import get_language, activate
 from django.contrib.auth.models import User
 
 from notification import backends
-from notification.message import encode_message
 
 
 DEFAULT_QUEUE_ALL = False
@@ -197,7 +196,6 @@ def queue(users, label, extra_context=None, sender=None):
     of user notifications to be deferred to a seperate process running outside
     the webserver.
     """
-    QUEUE_ALL = getattr(settings, "NOTIFICATION_QUEUE_ALL", DEFAULT_QUEUE_ALL)
     if extra_context is None:
         extra_context = {}
     if isinstance(users, QuerySet):
