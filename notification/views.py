@@ -4,7 +4,7 @@ from django.template import RequestContext
 
 from django.contrib.auth.decorators import login_required
 
-from notification.models import *
+from notification.models import NoticeSetting, NoticeType, NOTICE_MEDIA
 
 
 @login_required
@@ -33,7 +33,7 @@ def notice_settings(request):
         settings_row = []
         for medium_id, medium_display in NOTICE_MEDIA:
             form_label = "%s_%s" % (notice_type.label, medium_id)
-            setting = get_notification_setting(request.user, notice_type, medium_id)
+            setting = NoticeSetting.for_user(request.user, notice_type, medium_id)
             if request.method == "POST":
                 if request.POST.get(form_label) == "on":
                     if not setting.send:
