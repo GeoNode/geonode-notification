@@ -3,18 +3,14 @@ import time
 import logging
 import traceback
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import cPickle as pickle
 
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 
-from lockfile import FileLock, AlreadyLocked, LockTimeout
-
+from notification.lockfile import FileLock, AlreadyLocked, LockTimeout
 from notification.models import NoticeQueueBatch
 from notification.signals import emitted_notices
 from notification import models as notification
