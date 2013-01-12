@@ -1,5 +1,15 @@
 BI = backward incompatible change
 
+1.0
+---
+
+
+
+0.3
+---
+
+ * pluggable backends
+
 0.2.0
 -----
 
