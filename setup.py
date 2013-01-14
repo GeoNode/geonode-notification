@@ -8,10 +8,10 @@ setup(
     long_description=open("docs/usage.rst").read(),
     author="James Tauber",
     author_email="jtauber@jtauber.com",
-    url="https://github.com/jtauber/django-notification",
+    url="https://github.com/pinax/django-notification",
     packages=find_packages(),
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
