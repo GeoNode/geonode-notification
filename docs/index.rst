@@ -24,6 +24,8 @@ Contents:
    
    usage
    settings
+   changelog
+
 
 Indices and tables
 ==================

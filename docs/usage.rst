@@ -1,4 +1,5 @@
-=====
+.. _usage:
+
 Usage
 =====
 
@@ -9,7 +10,7 @@ Integrating notification support into your app is a simple three-step process.
   * send notifications
 
 Creating Notice Types
-=====================
+---------------------
 
 You need to call ``create_notice_type(label, display, description)`` once to
 create the notice types for your application in the database. ``label`` is just
@@ -48,7 +49,7 @@ using ugettext_noop. That will enable you to use Django's makemessages
 management command and use django-notification's i18n capabilities.
 
 Notification templates
-======================
+----------------------
 
 There are four different templates that can to be written for the actual content of the notices:
 
