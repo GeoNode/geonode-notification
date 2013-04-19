@@ -1,3 +1,9 @@
+===================
+django-notification
+===================
+
+.. image:: https://travis-ci.org/pinax/django-notification.png
+    :target: https://travis-ci.org/pinax/django-notification
 
 Many sites need to notify users when certain events have occurred and to allow
 configurable options as to how those notifications are to be received.
