@@ -22,11 +22,11 @@ class BaseBackend(object):
         from notification.models import NoticeSetting
         return NoticeSetting.for_user(user, notice_type, self.medium_id).send
     
-    def deliver(self, recipient, notice_type, extra_context):
+    def deliver(self, recipient, sender, notice_type, extra_context):
         """
         Deliver a notification to the given recipient.
         """
-        raise NotImplemented()
+        raise NotImplementedError()
     
     def get_formatted_messages(self, formats, label, context):
         """
@@ -34,13 +34,13 @@ class BaseBackend(object):
         are fully rendered templates with the given context.
         """
         format_templates = {}
-        for format in formats:
+        for fmt in formats:
             # conditionally turn off autoescaping for .txt extensions in format
-            if format.endswith(".txt"):
+            if fmt.endswith(".txt"):
                 context.autoescape = False
-            format_templates[format] = render_to_string((
-                "notification/%s/%s" % (label, format),
-                "notification/%s" % format), context_instance=context)
+            format_templates[fmt] = render_to_string((
+                "notification/%s/%s" % (label, fmt),
+                "notification/%s" % fmt), context_instance=context)
         return format_templates
     
     def default_context(self):

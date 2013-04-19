@@ -13,6 +13,11 @@ from notification import backends
 
 
 DEFAULT_QUEUE_ALL = False
+QUEUE_ALL = getattr(settings, "NOTIFICATION_QUEUE_ALL", DEFAULT_QUEUE_ALL)
+NOTIFICATION_BACKENDS = backends.load_backends()
+NOTICE_MEDIA, NOTICE_MEDIA_DEFAULTS = backends.load_media_defaults(
+    backends=NOTIFICATION_BACKENDS
+)
 
 
 class LanguageStoreNotAvailable(Exception):
@@ -64,16 +69,6 @@ class NoticeType(models.Model):
                 print "Created %s NoticeType" % label
 
 
-NOTIFICATION_BACKENDS = backends.load_backends()
-
-NOTICE_MEDIA = []
-NOTICE_MEDIA_DEFAULTS = {}
-for key, backend in NOTIFICATION_BACKENDS.items():
-    # key is a tuple (medium_id, backend_label)
-    NOTICE_MEDIA.append(key)
-    NOTICE_MEDIA_DEFAULTS[key[0]] = backend.spam_sensitivity
-
-
 class NoticeSetting(models.Model):
     """
     Indicates, for a given user, whether to send notifications
@@ -119,6 +114,7 @@ def get_notification_language(user):
         try:
             app_label, model_name = settings.NOTIFICATION_LANGUAGE_MODULE.split(".")
             model = models.get_model(app_label, model_name)
+            # pylint: disable-msg=W0212
             language_model = model._default_manager.get(user__id__exact=user.id)
             if hasattr(language_model, "language"):
                 return language_model.language
@@ -175,7 +171,6 @@ def send(*args, **kwargs):
     be queued or not. A per call ``queue`` or ``now`` keyword argument can be
     used to always override the default global behavior.
     """
-    QUEUE_ALL = getattr(settings, "NOTIFICATION_QUEUE_ALL", DEFAULT_QUEUE_ALL)
     queue_flag = kwargs.pop("queue", False)
     now_flag = kwargs.pop("now", False)
     assert not (queue_flag and now_flag), "'queue' and 'now' cannot both be True."
