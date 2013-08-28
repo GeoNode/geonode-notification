@@ -5,6 +5,21 @@ ChangeLog
 
 BI = backward incompatible change
 
+1.1.1
+-----
+
+* fixed a deprecation warning
+
+
+1.1
+---
+
+* added Russian locale
+* added travis integration for tests/lints
+* added created_notice_type wrapper
+* cleaned up some small bugs identified by pylint
+
+
 1.0
 ---
 
