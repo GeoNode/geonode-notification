@@ -9,7 +9,7 @@
 
 {% block body %}
     <h2>{% trans "Notification Settings" %}</h2>
-    
+
     {% url "account_settings" as email_url %}
     {% if not request.user.email %}
         {% blocktrans %}
@@ -47,7 +47,7 @@
                 </tr>
             {% endfor %}
         </table>
-        
+
         <div class="form-actions">
             <button type="submit" class="btn btn-primary pull-right">{% trans "Change" %}</button>
         </div>

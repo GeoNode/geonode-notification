@@ -7,7 +7,7 @@ from notification.engine import send_all
 
 class Command(BaseCommand):
     help = "Emit queued notices."
-    
+
     def handle(self, *args, **options):
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
         logging.info("-" * 72)

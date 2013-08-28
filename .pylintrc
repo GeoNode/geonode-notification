@@ -4,6 +4,7 @@ load-plugins=pinax.checkers.style
 [MESSAGES CONTROL]
 # Pointless whinging
 #   C0111 = Missing docstring
+#   C1001 = Old style classes
 #   R0904 = Too Many Public Methods
 #   I0011 = Locally Disabling
 #   W0232 = Class has no __init__ method
@@ -13,7 +14,7 @@ load-plugins=pinax.checkers.style
 #   W0511 = Turn off warnings for TODO comments
 #   R0913 = Too many arguments
 
-disable=C0111,R0904,I0011,W0232,R0903,R0922,R0201,W0511,R0913
+disable=C0111,R0904,I0011,W0232,R0903,R0922,R0201,W0511,R0913,C9901,C1001
 
 [REPORTS]
 include-ids=yes

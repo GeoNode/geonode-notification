@@ -13,7 +13,7 @@ class BaseBackend(object):
         self.medium_id = medium_id
         if spam_sensitivity is not None:
             self.spam_sensitivity = spam_sensitivity
-    
+
     def can_send(self, user, notice_type):
         """
         Determines whether this backend is allowed to send a notification to
@@ -21,13 +21,13 @@ class BaseBackend(object):
         """
         from notification.models import NoticeSetting
         return NoticeSetting.for_user(user, notice_type, self.medium_id).send
-    
+
     def deliver(self, recipient, sender, notice_type, extra_context):
         """
         Deliver a notification to the given recipient.
         """
         raise NotImplementedError()
-    
+
     def get_formatted_messages(self, formats, label, context):
         """
         Returns a dictionary with the format identifier as the key. The values are
@@ -42,7 +42,7 @@ class BaseBackend(object):
                 "notification/%s/%s" % (label, fmt),
                 "notification/%s" % fmt), context_instance=context)
         return format_templates
-    
+
     def default_context(self):
         default_http_protocol = getattr(settings, "DEFAULT_HTTP_PROTOCOL", "http")
         current_site = Site.objects.get_current()

@@ -182,23 +182,23 @@ class LockBase:
                                         "%s.%s%s" % (self.hostname,
                                                      tname,
                                                      self.pid))
-    
+
     def acquire(self, timeout=None):
         """
         Acquire the lock.
-        
+
         * If timeout is omitted (or None), wait forever trying to lock the
           file.
-        
+
         * If timeout > 0, try to acquire the lock for that many seconds.  If
           the lock period expires and the file is still locked, raise
           LockTimeout.
-        
+
         * If timeout <= 0, raise AlreadyLocked immediately if the file is
           already locked.
         """
         raise NotImplementedError("implement in subclass")
-    
+
     def release(self):
         """
         Release the lock.
@@ -206,32 +206,32 @@ class LockBase:
         If the file is not locked, raise NotLocked.
         """
         raise NotImplementedError("implement in subclass")
-    
+
     def is_locked(self):
         """
         Tell whether or not the file is locked.
         """
         raise NotImplementedError("implement in subclass")
-    
+
     def i_am_locking(self):
         """
         Return True if this object is locking the file.
         """
         raise NotImplementedError("implement in subclass")
-    
+
     def break_lock(self):
         """
         Remove a lock.  Useful if a locking thread failed to unlock.
         """
         raise NotImplementedError("implement in subclass")
-    
+
     def __enter__(self):
         """
         Context manager support.
         """
         self.acquire()
         return self
-    
+
     def __exit__(self, *_exc):
         """
         Context manager support.
@@ -241,17 +241,17 @@ class LockBase:
 
 class LinkFileLock(LockBase):
     """Lock access to a file using atomic property of link(2)."""
-    
+
     def acquire(self, timeout=None):
         try:
             open(self.unique_name, "wb").close()
         except IOError:
             raise LockFailed("failed to create %s" % self.unique_name)
-        
+
         end_time = time.time()
         if timeout is not None and timeout > 0:
             end_time += timeout
-        
+
         while True:
             # Try and create a hard link to it.
             try:
@@ -271,11 +271,11 @@ class LinkFileLock(LockBase):
                             raise LockTimeout
                         else:
                             raise AlreadyLocked
-                    time.sleep(timeout is not None and timeout/10 or 0.1)
+                    time.sleep(timeout is not None and (timeout / 10) or 0.1)
             else:
                 # Link creation succeeded.  We"re good to go.
                 return
-    
+
     def release(self):
         if not self.is_locked():
             raise NotLocked
@@ -283,15 +283,15 @@ class LinkFileLock(LockBase):
             raise NotMyLock
         os.unlink(self.unique_name)
         os.unlink(self.lock_file)
-    
+
     def is_locked(self):
         return os.path.exists(self.lock_file)
-    
+
     def i_am_locking(self):
         return (self.is_locked() and
                 os.path.exists(self.unique_name) and
                 os.stat(self.unique_name).st_nlink == 2)
-    
+
     def break_lock(self):
         if os.path.exists(self.lock_file):
             os.unlink(self.lock_file)
@@ -315,17 +315,17 @@ class MkdirFileLock(LockBase):
             self.lock_file,
             "{}.{}{}".format(self.hostname, tname, self.pid)
         )
-    
+
     def acquire(self, timeout=None):
         end_time = time.time()
         if timeout is not None and timeout > 0:
             end_time += timeout
-        
+
         if timeout is None:
             wait = 0.1
         else:
             wait = max(0, timeout / 10)
-        
+
         while True:
             try:
                 os.mkdir(self.lock_file)
@@ -349,7 +349,7 @@ class MkdirFileLock(LockBase):
             else:
                 open(self.unique_name, "wb").close()
                 return
-    
+
     def release(self):
         if not self.is_locked():
             raise NotLocked
@@ -357,14 +357,14 @@ class MkdirFileLock(LockBase):
             raise NotMyLock
         os.unlink(self.unique_name)
         os.rmdir(self.lock_file)
-    
+
     def is_locked(self):
         return os.path.exists(self.lock_file)
-    
+
     def i_am_locking(self):
         return (self.is_locked() and
                 os.path.exists(self.unique_name))
-    
+
     def break_lock(self):
         if os.path.exists(self.lock_file):
             for name in os.listdir(self.lock_file):
@@ -374,21 +374,21 @@ class MkdirFileLock(LockBase):
 
 class SQLiteFileLock(LockBase):
     """Demonstration of using same SQL-based locking."""
-    
+
     import tempfile
     _fd, testdb = tempfile.mkstemp()
     os.close(_fd)
     os.unlink(testdb)
     del _fd, tempfile
-    
+
     def __init__(self, path, threaded=True):
         LockBase.__init__(self, path, threaded)
         self.lock_file = unicode(self.lock_file)
         self.unique_name = unicode(self.unique_name)
-        
+
         import sqlite3
         self.connection = sqlite3.connect(SQLiteFileLock.testdb)
-        
+
         cursor = self.connection.cursor()
         try:
             cursor.execute("create table locks"
@@ -402,7 +402,7 @@ class SQLiteFileLock(LockBase):
             self.connection.commit()
             import atexit
             atexit.register(os.unlink, SQLiteFileLock.testdb)
-    
+
     def create_lock(self, cursor):
         # Not locked.  Try to lock it.
         cursor.execute("insert into locks"
@@ -411,7 +411,7 @@ class SQLiteFileLock(LockBase):
                        "  (?, ?)",
                        (self.lock_file, self.unique_name))
         self.connection.commit()
-        
+
         # Check to see if we are the only lock holder.
         cursor.execute("select * from locks where unique_name = ?",
                        (self.unique_name,))
@@ -423,7 +423,7 @@ class SQLiteFileLock(LockBase):
             self.connection.commit()
             return False
         return True
-    
+
     def i_am_the_only_lock(self, cursor):
         # Check to see if we are the only lock holder.
         cursor.execute("select * from locks where unique_name = ?",
@@ -432,21 +432,21 @@ class SQLiteFileLock(LockBase):
         if len(rows) == 1:
             # We"re the locker, so go home.
             return
-    
+
     def acquire(self, timeout=None):
         end_time = time.time()
         if timeout is not None and timeout > 0:
             end_time += timeout
-        
+
         if timeout is None:
             wait = 0.1
         elif timeout <= 0:
             wait = 0
         else:
             wait = timeout / 10
-        
+
         cursor = self.connection.cursor()
-        
+
         while True:
             if self.is_locked():
                 if self.i_am_the_only_lock(cursor):
@@ -454,7 +454,7 @@ class SQLiteFileLock(LockBase):
             else:
                 if self.create_lock(cursor):
                     return
-            
+
             # Maybe we should wait a bit longer.
             if timeout is not None and time.time() > end_time:
                 if timeout > 0:
@@ -463,10 +463,10 @@ class SQLiteFileLock(LockBase):
                 else:
                     # Someone else has the lock and we are impatient..
                     raise AlreadyLocked
-            
+
             # Well, okay.  We"ll give it a bit longer.
             time.sleep(wait)
-    
+
     def release(self):
         if not self.is_locked():
             raise NotLocked
@@ -477,14 +477,14 @@ class SQLiteFileLock(LockBase):
                        "  where unique_name = ?",
                        (self.unique_name,))
         self.connection.commit()
-    
+
     def _who_is_locking(self):
         cursor = self.connection.cursor()
         cursor.execute("select unique_name from locks"
                        "  where lock_file = ?",
                        (self.lock_file,))
         return cursor.fetchone()[0]
-    
+
     def is_locked(self):
         cursor = self.connection.cursor()
         cursor.execute("select * from locks"
@@ -492,7 +492,7 @@ class SQLiteFileLock(LockBase):
                        (self.lock_file,))
         rows = cursor.fetchall()
         return not not rows
-    
+
     def i_am_locking(self):
         cursor = self.connection.cursor()
         cursor.execute("select * from locks"
@@ -500,7 +500,7 @@ class SQLiteFileLock(LockBase):
                        "    and unique_name = ?",
                        (self.lock_file, self.unique_name))
         return not not cursor.fetchall()
-    
+
     def break_lock(self):
         cursor = self.connection.cursor()
         cursor.execute("delete from locks"
