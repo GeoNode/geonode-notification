@@ -12,7 +12,7 @@ Usage:
 ... except AlreadyLocked:
 ...     print "somefile", "is locked already."
 ... except LockFailed:
-...     print "somefile", "can\\"t be locked."
+...     print "somefile", "can\\'t be locked."
 ... else:
 ...     print "got lock"
 got lock
@@ -52,11 +52,11 @@ from __future__ import division
 import sys
 import socket
 import os
-import thread
 import threading
 import time
 import errno
-import urllib
+
+from .compat import quote
 
 # Work with PEP8 and non-PEP8 versions of threading module.
 if not hasattr(threading, "current_thread"):
@@ -174,7 +174,7 @@ class LockBase:
         self.pid = os.getpid()
         if threaded:
             name = threading.current_thread().get_name()
-            tname = "%s-" % urllib.quote(name, safe="")
+            tname = "%s-" % quote(name, safe="")
         else:
             tname = ""
         dirname = os.path.dirname(self.lock_file)
@@ -306,7 +306,7 @@ class MkdirFileLock(LockBase):
         """
         LockBase.__init__(self, path, threaded)
         if threaded:
-            tname = "%x-" % thread.get_ident()
+            tname = "%x-" % threading.get_ident()
         else:
             tname = ""
         # Lock file itself is a directory.  Place the unique file name into

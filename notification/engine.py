@@ -2,13 +2,13 @@ import sys
 import time
 import logging
 import traceback
-
-import cPickle as pickle
+import base64
 
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils.six.moves import cPickle as pickle
 
 from notification.lockfile import FileLock, AlreadyLocked, LockTimeout
 from notification.models import NoticeQueueBatch
@@ -44,7 +44,7 @@ def send_all(*args):
         # nesting the try statement to be Python 2.4
         try:
             for queued_batch in NoticeQueueBatch.objects.all():
-                notices = pickle.loads(str(queued_batch.pickled_data).decode("base64"))
+                notices = pickle.loads(base64.b64decode(queued_batch.pickled_data))
                 for user, label, extra_context, sender in notices:
                     try:
                         user = User.objects.get(pk=user)
