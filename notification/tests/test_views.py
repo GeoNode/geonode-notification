@@ -25,12 +25,12 @@ class TestViews(TestCase):
         setting.save()
         self.client.login(username="test_user", password="123456")
         response = self.client.get(reverse("notification_notice_settings"))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)  # pylint: disable-msg=E1103
 
         post_data = {
             "label_2_{}".format(NOTICE_MEDIA[0][0]): "on",
         }
         response = self.client.post(reverse("notification_notice_settings"), data=post_data)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)  # pylint: disable-msg=E1103
         self.assertFalse(NoticeSetting.for_user(self.user, notice_type_1, NOTICE_MEDIA[0][0]).send)
         self.assertTrue(NoticeSetting.for_user(self.user, notice_type_2, NOTICE_MEDIA[0][0]).send)

@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.mail import mail_admins
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.utils.six.moves import cPickle as pickle
+from django.utils.six.moves import cPickle as pickle  # pylint: disable-msg=F
 
 from notification.lockfile import FileLock, AlreadyLocked, LockTimeout
 from notification.models import NoticeQueueBatch

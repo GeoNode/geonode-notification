@@ -56,7 +56,7 @@ import threading
 import time
 import errno
 
-from .compat import quote
+from .compat import quote, get_ident
 
 # Work with PEP8 and non-PEP8 versions of threading module.
 if not hasattr(threading, "current_thread"):
@@ -306,7 +306,7 @@ class MkdirFileLock(LockBase):
         """
         LockBase.__init__(self, path, threaded)
         if threaded:
-            tname = "%x-" % threading.get_ident()
+            tname = "%x-" % get_ident()
         else:
             tname = ""
         # Lock file itself is a directory.  Place the unique file name into
