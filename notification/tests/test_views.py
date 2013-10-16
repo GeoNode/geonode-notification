@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from ..compat import get_user_model
-from ..models import create_notice_type, NoticeSetting, NoticeType, NOTICE_MEDIA
+from ..models import create_notice_type, NoticeSetting, NoticeType
+
+from . import get_backend_id
 
 
 class TestViews(TestCase):
@@ -20,7 +22,8 @@ class TestViews(TestCase):
         notice_type_1 = NoticeType.objects.get(label="label_1")
         create_notice_type("label_2", "display", "description")
         notice_type_2 = NoticeType.objects.get(label="label_2")
-        setting = NoticeSetting.for_user(self.user, notice_type_2, NOTICE_MEDIA[0][0])
+        email_id = get_backend_id("email")
+        setting = NoticeSetting.for_user(self.user, notice_type_2, email_id)
         setting.send = False
         setting.save()
         self.client.login(username="test_user", password="123456")
@@ -28,9 +31,9 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)  # pylint: disable-msg=E1103
 
         post_data = {
-            "label_2_{}".format(NOTICE_MEDIA[0][0]): "on",
+            "label_2_{}".format(email_id): "on",
         }
         response = self.client.post(reverse("notification_notice_settings"), data=post_data)
         self.assertEqual(response.status_code, 302)  # pylint: disable-msg=E1103
-        self.assertFalse(NoticeSetting.for_user(self.user, notice_type_1, NOTICE_MEDIA[0][0]).send)
-        self.assertTrue(NoticeSetting.for_user(self.user, notice_type_2, NOTICE_MEDIA[0][0]).send)
+        self.assertFalse(NoticeSetting.for_user(self.user, notice_type_1, email_id).send)
+        self.assertTrue(NoticeSetting.for_user(self.user, notice_type_2, email_id).send)

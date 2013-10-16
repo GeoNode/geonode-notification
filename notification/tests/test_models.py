@@ -8,11 +8,13 @@ from django.core import mail
 from django.utils.six.moves import cPickle as pickle  # pylint: disable-msg=F
 
 from ..models import NoticeType, NoticeSetting, NoticeQueueBatch
-from ..models import NOTICE_MEDIA, LanguageStoreNotAvailable
+from ..models import LanguageStoreNotAvailable
 from ..models import get_notification_language, create_notice_type, send_now, send, queue
 from ..compat import get_user_model
 
 from .models import Language
+
+from . import get_backend_id
 
 
 class BaseTest(TestCase):
@@ -52,7 +54,7 @@ class TestNoticeType(TestCase):
 
 class TestNoticeSetting(BaseTest):
     def test_for_user(self):
-        email_id = NOTICE_MEDIA[0][0]
+        email_id = get_backend_id("email")
         notice_setting = NoticeSetting.objects.create(user=self.user, notice_type=self.notice_type,
                                                       medium=email_id, send=False)
         self.assertEqual(NoticeSetting.for_user(self.user, self.notice_type, email_id),
