@@ -51,7 +51,7 @@ management command and use django-notification's i18n capabilities.
 Notification templates
 ----------------------
 
-There are four different templates that can to be written for the actual content of the notices:
+There are four different templates that can be written to for the actual content of the notices:
 
   * ``short.txt`` is a very short, text-only version of the notice (suitable for things like email subjects)
   * ``full.txt`` is a longer, text-only version of the notice (suitable for things like email bodies)
