@@ -16,9 +16,14 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.3",
         "Framework :: Django",
     ],
     include_package_data=True,
+    test_suite='runtests',
+    install_requires=[
+        'django>=1.4',
+    ],
     zip_safe=False,
 )

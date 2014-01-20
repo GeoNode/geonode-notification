@@ -1,5 +1,6 @@
 [MASTER]
 load-plugins=pinax.checkers.style
+ignore:compat.py
 
 [MESSAGES CONTROL]
 # Pointless whinging

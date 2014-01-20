@@ -15,11 +15,13 @@ settings.configure(
         "django.contrib.auth",
         "django.contrib.contenttypes",
         "django.contrib.sites",
+        'django.contrib.sessions',
         "notification",
+        "notification.tests",
     ],
     STRIPE_PUBLIC_KEY="",
     STRIPE_SECRET_KEY="",
-    PAYMENTS_PLANS={}
+    PAYMENTS_PLANS={},
 )
 
 from django_nose import NoseTestSuiteRunner

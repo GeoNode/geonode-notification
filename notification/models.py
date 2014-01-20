@@ -1,4 +1,7 @@
-import cPickle as pickle
+from __future__ import unicode_literals
+from __future__ import print_function
+
+import base64
 
 from django.db import models
 from django.db.models.query import QuerySet
@@ -6,8 +9,10 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import get_language, activate
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.six.moves import cPickle as pickle  # pylint: disable-msg=F
 
-from django.contrib.auth.models import User
+from .compat import AUTH_USER_MODEL
 
 from notification import backends
 
@@ -28,6 +33,7 @@ def create_notice_type(label, display, description, **kwargs):
     NoticeType.create(label, display, description, **kwargs)
 
 
+@python_2_unicode_compatible
 class NoticeType(models.Model):
 
     label = models.CharField(_("label"), max_length=40)
@@ -37,7 +43,7 @@ class NoticeType(models.Model):
     # by default only on for media with sensitivity less than or equal to this number
     default = models.IntegerField(_("default"))
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
     class Meta:
@@ -66,11 +72,11 @@ class NoticeType(models.Model):
             if updated:
                 notice_type.save()
                 if verbosity > 1:
-                    print "Updated %s NoticeType" % label
+                    print("Updated %s NoticeType" % label)
         except cls.DoesNotExist:
             cls(label=label, display=display, description=description, default=default).save()
             if verbosity > 1:
-                print "Created %s NoticeType" % label
+                print("Created %s NoticeType" % label)
 
 
 class NoticeSetting(models.Model):
@@ -79,7 +85,7 @@ class NoticeSetting(models.Model):
     of a given type to a given medium.
     """
 
-    user = models.ForeignKey(User, verbose_name=_("user"))
+    user = models.ForeignKey(AUTH_USER_MODEL, verbose_name=_("user"))
     notice_type = models.ForeignKey(NoticeType, verbose_name=_("notice type"))
     medium = models.CharField(_("medium"), max_length=1, choices=NOTICE_MEDIA)
     send = models.BooleanField(_("send"))
@@ -204,4 +210,4 @@ def queue(users, label, extra_context=None, sender=None):
     notices = []
     for user in users:
         notices.append((user, label, extra_context, sender))
-    NoticeQueueBatch(pickled_data=pickle.dumps(notices).encode("base64")).save()
+    NoticeQueueBatch(pickled_data=base64.b64encode(pickle.dumps(notices))).save()
