@@ -3,7 +3,7 @@ import sys
 from django.conf import settings
 from django.core import exceptions
 
-from .base import BaseBackend
+from .base import BaseBackend  # noqa
 
 
 # pylint: disable-msg=C0103

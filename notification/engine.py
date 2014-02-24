@@ -20,7 +20,7 @@ from notification import models as notification
 LOCK_WAIT_TIMEOUT = getattr(settings, "NOTIFICATION_LOCK_WAIT_TIMEOUT", -1)
 
 
-def send_all(*args):
+def acquire_lock(*args):
     if len(args) == 1:
         lock = FileLock(args[0])
     else:
@@ -36,7 +36,11 @@ def send_all(*args):
         logging.debug("waiting for the lock timed out. quitting.")
         return
     logging.debug("acquired.")
+    return lock
 
+
+def send_all(*args):
+    lock = acquire_lock(*args)
     batches, sent, sent_actual = 0, 0, 0
     start_time = time.time()
 

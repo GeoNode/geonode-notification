@@ -316,6 +316,30 @@ class MkdirFileLock(LockBase):
             "{}.{}{}".format(self.hostname, tname, self.pid)
         )
 
+    def attempt_acquire(self, timeout, end_time, wait):
+        try:
+            os.mkdir(self.lock_file)
+        except OSError:
+            err = sys.exc_info()[1]
+            if err.errno == errno.EEXIST:
+                # Already locked.
+                if os.path.exists(self.unique_name):
+                    # Already locked by me.
+                    return
+                if timeout is not None and time.time() > end_time:
+                    if timeout > 0:
+                        raise LockTimeout
+                    else:
+                        # Someone else has the lock.
+                        raise AlreadyLocked
+                time.sleep(wait)
+            else:
+                # Couldn"t create the lock for some other reason
+                raise LockFailed("failed to create %s" % self.lock_file)
+        else:
+            open(self.unique_name, "wb").close()
+            return
+
     def acquire(self, timeout=None):
         end_time = time.time()
         if timeout is not None and timeout > 0:
@@ -327,28 +351,7 @@ class MkdirFileLock(LockBase):
             wait = max(0, timeout / 10)
 
         while True:
-            try:
-                os.mkdir(self.lock_file)
-            except OSError:
-                err = sys.exc_info()[1]
-                if err.errno == errno.EEXIST:
-                    # Already locked.
-                    if os.path.exists(self.unique_name):
-                        # Already locked by me.
-                        return
-                    if timeout is not None and time.time() > end_time:
-                        if timeout > 0:
-                            raise LockTimeout
-                        else:
-                            # Someone else has the lock.
-                            raise AlreadyLocked
-                    time.sleep(wait)
-                else:
-                    # Couldn"t create the lock for some other reason
-                    raise LockFailed("failed to create %s" % self.lock_file)
-            else:
-                open(self.unique_name, "wb").close()
-                return
+            self.attempt_acquire(self, timeout, end_time, wait)
 
     def release(self):
         if not self.is_locked():
@@ -433,6 +436,26 @@ class SQLiteFileLock(LockBase):
             # We"re the locker, so go home.
             return
 
+    def attempt_acquire(self, timeout, cursor, end_time, wait):
+        if self.is_locked():
+            if self.i_am_the_only_lock(cursor):
+                return
+        else:
+            if self.create_lock(cursor):
+                return
+
+        # Maybe we should wait a bit longer.
+        if timeout is not None and time.time() > end_time:
+            if timeout > 0:
+                # No more waiting.
+                raise LockTimeout
+            else:
+                # Someone else has the lock and we are impatient..
+                raise AlreadyLocked
+
+        # Well, okay.  We"ll give it a bit longer.
+        time.sleep(wait)
+
     def acquire(self, timeout=None):
         end_time = time.time()
         if timeout is not None and timeout > 0:
@@ -448,24 +471,7 @@ class SQLiteFileLock(LockBase):
         cursor = self.connection.cursor()
 
         while True:
-            if self.is_locked():
-                if self.i_am_the_only_lock(cursor):
-                    return
-            else:
-                if self.create_lock(cursor):
-                    return
-
-            # Maybe we should wait a bit longer.
-            if timeout is not None and time.time() > end_time:
-                if timeout > 0:
-                    # No more waiting.
-                    raise LockTimeout
-                else:
-                    # Someone else has the lock and we are impatient..
-                    raise AlreadyLocked
-
-            # Well, okay.  We"ll give it a bit longer.
-            time.sleep(wait)
+            self.attempt_acquire(self, timeout, cursor, end_time, wait)
 
     def release(self):
         if not self.is_locked():

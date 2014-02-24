@@ -1,1 +1,0 @@
-pylint --rcfile=.pylintrc notification -r y && pep8 --ignore=E501 notification

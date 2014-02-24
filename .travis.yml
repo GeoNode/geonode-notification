@@ -5,13 +5,10 @@ env:
   - DJANGO=1.4.8
   - DJANGO=1.5.4
 install:
-  - pip install -q Django==$DJANGO --use-mirrors
-  - pip install -q django-nose --use-mirrors
-  - pip install -q pylint --use-mirrors
-  - pip install -q pep8 --use-mirrors
-  - pip install -q pinax.checkers --use-mirrors
-  - pip install -e . --use-mirrors
-before_script:
-  - "./lint.sh"
+  - pip install -q Django==$DJANGO
+  - pip install -q django-nose
+  - pip install -q flake8
+  - pip install -e .
 script:
+  - flake8 --max-line-length=100 --max-complexity=10 --statistics --benchmark notification
   - python runtests.py
