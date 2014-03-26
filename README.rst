@@ -15,3 +15,8 @@ includes:
  * notification messages on signing in
  * notification messages via email (configurable by user)
  * notification messages via feed
+
+Documentation
+=============
+
+See http://django-notification.readthedocs.org/
