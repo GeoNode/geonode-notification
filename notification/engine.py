@@ -6,7 +6,7 @@ import base64
 
 from django.conf import settings
 from django.core.mail import mail_admins
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.utils.six.moves import cPickle as pickle  # pylint: disable-msg=F
 
@@ -51,13 +51,13 @@ def send_all(*args):
                 notices = pickle.loads(base64.b64decode(queued_batch.pickled_data))
                 for user, label, extra_context, sender in notices:
                     try:
-                        user = User.objects.get(pk=user)
+                        user = get_user_model().objects.get(pk=user)
                         logging.info("emitting notice {} to {}".format(label, user))
                         # call this once per user to be atomic and allow for logging to
                         # accurately show how long each takes.
                         if notification.send_now([user], label, extra_context, sender):
                             sent_actual += 1
-                    except User.DoesNotExist:
+                    except get_user_model().DoesNotExist:
                         # Ignore deleted users, just warn about them
                         logging.warning(
                             "not emitting notice {} to user {} since it does not exist".format(
