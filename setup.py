@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="django-notification",
+    name="geonode-notification",
     version=__import__("notification").__version__,
     description="User notification management for the Django web framework",
     long_description=open("docs/usage.rst").read(),
     author="James Tauber",
     author_email="jtauber@jtauber.com",
-    url="https://github.com/pinax/django-notification",
+    url="https://github.com/GeoNode/geonode-notification",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
